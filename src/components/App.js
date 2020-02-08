@@ -38,7 +38,16 @@ class App extends Component {
       const productCount = await marketplace.methods.productCount().call();
 
       this.setState({productCount});
+
+      //load product data
+      for (let i=0; i<=productCount; i++){
+          const product = await marketplace.methods.products(i).call();
+          this.setState({
+            products: [...this.state.products, product]
+          });
+      }
       this.setState({loading: false});
+      console.log(this.state.products);
     }
     else{
      window.alert('Marketplace contract not deployed to detected network.');
@@ -56,6 +65,8 @@ class App extends Component {
       loading: true
     }
     this.createProduct = this.createProduct.bind(this);
+    this.purchaseProduct= this.purchaseProduct.bind(this);
+
   }
 
   createProduct(name, price){
@@ -64,7 +75,14 @@ class App extends Component {
         once('receipt', (receipt) => {
           this.setState({loading:false});
     })
+  }
 
+  purchaseProduct(id,price){
+    this.setState({loading:true});
+    this.state.marketplace.methods.purchaseProduct(id).send({ from: this.state.account, value: price })
+        .once('receipt', (receipt) => {
+          this.setState({ loading: false })
+        })
   }
   render() {
     return (
@@ -76,7 +94,10 @@ class App extends Component {
             <main role="main" className="col-lg-12 d-flex">
               {this.state.loading
                   ? <div id="loader" className="text-center"> <p className="text-center">Loading ...</p> </div>
-                  :<Main createProduct={this.createProduct}/>
+                  :<Main
+                      products={this.state.products}
+                      createProduct={this.createProduct}
+                      purchaseProduct={this.purchaseProduct}/>
               }
             </main>
           </div>
