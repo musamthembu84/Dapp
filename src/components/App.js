@@ -36,7 +36,8 @@ class App extends Component {
       const marketplace = web3.eth.Contract(Marketplace.abi,networkData.address);
       this.setState({marketplace});
       const productCount = await marketplace.methods.productCount().call();
-      console.log(productCount.toString());
+
+      this.setState({productCount});
       this.setState({loading: false});
     }
     else{
@@ -54,6 +55,7 @@ class App extends Component {
       products: [],
       loading: true
     }
+    this.createProduct = this.createProduct.bind(this);
   }
 
   createProduct(name, price){
@@ -74,7 +76,7 @@ class App extends Component {
             <main role="main" className="col-lg-12 d-flex">
               {this.state.loading
                   ? <div id="loader" className="text-center"> <p className="text-center">Loading ...</p> </div>
-                  :<Main/>
+                  :<Main createProduct={this.createProduct}/>
               }
             </main>
           </div>
